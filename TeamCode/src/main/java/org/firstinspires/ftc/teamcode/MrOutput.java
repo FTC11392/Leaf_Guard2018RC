@@ -28,52 +28,74 @@ public class MrOutput {
     boolean debugOn = false;
     int totalLines = 6;
     int staticLines = 0;
-    String[] outputLines = new String[totalLines];
+    String[] statics;
+    String[] outputs;
+    String[] staticCaptions;
+    String[] outputCaptions;
     String debugString = "";
     public Telemetry tele;
     /*
     debug: Mr. Output will output debug information to an
            additional line.
      */
-    public MrOutput(OpMode opmode, int staticLines, boolean debug) {
+    public MrOutput(Telemetry tele, int staticLines, boolean debug) {
         debugOn = debug;
-        tele = new TelemetryImpl(opmode);
+        this.tele = tele;
         addTelemetryLine("Starting Mr. Output...");
         if (staticLines > totalLines) {
             staticLines = totalLines;
             addTelemetryLine(1, "staticLines > totalLines in MrOutput. Please fix.");
         }
         this.staticLines = staticLines;
+        statics = new String[staticLines];
+        outputs = new String[totalLines - staticLines];
+        staticCaptions = new String[staticLines];
+        outputCaptions = new String[totalLines - staticLines];
         addTelemetryLine("Mr. Output is online!");
         pushTelemetry();
     }
 
-    public void outputStaticLine(int staticLine, String caption, String output) {
+    public void printStaticLine(int staticLine, String caption, String output) {
         if (!(staticLine >= staticLines) && (staticLine > -1)) {
+            statics[staticLine] = output;
+            staticCaptions[staticLine] = caption;
 
         } else {
             buildDebugString("WARN", "Cannot add static line");
         }
+        buildTelemetry();
+        pushTelemetry();
     }
-    public void outputStaticLine(int staticLine, int captionLevel, String line) {
-        outputStaticLine(staticLine, captionCase(captionLevel), line);
+    public void printStaticLine(int staticLine, int captionLevel, String line) {
+        printStaticLine(staticLine, captionCase(captionLevel), line);
     }
-    public void outputStaticLine(int staticLine, String output) {
-        outputStaticLine(staticLine, 0, output);
+    public void printStaticLine(int staticLine, String output) {
+        printStaticLine(staticLine, 0, output);
     }
 
-    public void outputLine(String caption, String output){
-
+    public void println(String caption, String output){
+        for (int i = 0; i < outputs.length; i++) {
+            if((i + 1) != outputs.length)
+                outputs[i] = outputs[i+1];
+        }
+        for (int i = 0; i < outputCaptions.length; i++) {
+            if((i + 1) != outputCaptions.length)
+                outputCaptions[i] = outputCaptions[i+1];
+        }
+        outputs[outputs.length - 1] = output;
+        outputCaptions[outputCaptions.length - 1] = caption;
+        buildTelemetry();
+        pushTelemetry();
     }
-    public void outputLine(int captionLevel, String output){
-        outputLine(captionCase(captionLevel), output);
+    public void println(int captionLevel, String output){
+        println(captionCase(captionLevel), output);
     }
-    public void outputLine(String output){
-        outputLine(0, output);
+    public void println(String output){
+        println(0, output);
     }
 
     private void addTelemetryLine(String caption, String line) {
-        tele.addData(caption, "line");
+        tele.addData(caption, line);
     }
     private void addTelemetryLine(int captionLevel, String line) {
         addTelemetryLine(captionCase(captionLevel), line);
@@ -85,6 +107,19 @@ public class MrOutput {
 
     private void buildDebugString(String caption, String addition) {
         debugString = debugString + caption + ": " + addition + " ";
+    }
+
+    private void buildTelemetry() {
+        tele.clear();
+        for (int i = 0; i < statics.length; i++) {
+            tele.addData(staticCaptions[i], statics[i]);
+        }
+        for (int i = 0; i < outputs.length; i++) {
+            tele.addData(outputCaptions[i], outputs[i]);
+        }
+        if (debugOn) {
+            buildDebugString("debug", "on");
+        }
     }
 
     private void pushTelemetry() {
