@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+
+
 /*
 Vision 2018
 
@@ -15,6 +17,12 @@ Vision 2018 will not compile if not present
 Vision 2018 is developed by Brian Lu
  */
 
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
 public class Vision {
     String vuforiaKey = BuildConfig.VUFORIA_KEY;
+    public ClosableVuforiaLocalizer vuforia;
+    public VuforiaTrackables relicTrackables;
+    public VuforiaTrackable relicTemplate;
 }
