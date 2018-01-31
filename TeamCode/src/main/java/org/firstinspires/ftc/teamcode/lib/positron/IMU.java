@@ -30,25 +30,22 @@ import java.util.Locale;
 import static java.lang.Thread.sleep;
 
 public class IMU implements Runnable{
-    int updateInterval = 80;
+    private int updateInterval = 80;
 
-    boolean fatalError = false;
-    boolean running = true;
-    public BNO055IMU imu;
-    Orientation angles;
-    Acceleration linearAccel;
-    Acceleration overallAccel;
-    MrOutput out;
+    private boolean fatalError = false;
+    private boolean running = true;
+    private BNO055IMU imu;
+    private MrOutput out;
 
-    double xPosition = 0;
-    double yPosition = 0;
+    private double xPosition = 0;
+    private double yPosition = 0;
 
-    double heading = 0;
+    private double heading = 0;
 
     public IMU(HardwareMap hwMap, MrOutput out) {
         this.out = out;
         out.println("Starting up IMU...");
-        BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();;
+        BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
         try {
             out.println("Loading IMU parameters...");
             imuparams.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -116,29 +113,32 @@ public class IMU implements Runnable{
     }
 
     private void updateOrientation() {
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
     }
 
-    String formatAngle(AngleUnit angleUnit, double angle) {
+    private String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
-    String formatDegrees(double degrees){
+    private String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
     private void updatePosition() {
-        linearAccel = imu.getLinearAcceleration();
-        overallAccel = imu.getOverallAcceleration();
+        Acceleration linearAccel = imu.getLinearAcceleration();
+        Acceleration overallAccel = imu.getOverallAcceleration();
+        xPosition = (updateInterval / 1000) * linearAccel.xAccel + xPosition;
+        yPosition = (updateInterval / 1000) * linearAccel.yAccel + yPosition;
 
     }
 
     public void stopIMU() {
         if (!fatalError) {
+            out.println("Stopping IMU logging...");
             imu.stopAccelerationIntegration();
             imu.close();
         }
-        out.println("Stopping IMU logging...");
+        out.println("IMU logging stop");
         running = false;
     }
 }

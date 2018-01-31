@@ -23,15 +23,15 @@ public class MrOutput {
                  telemetry
     staticLines: Amount of "static lines"
      */
-    boolean debugOn = false;
-    int totalLines = 6;
-    int staticLines = 0;
-    String[] statics;
-    String[] outputs;
-    String[] staticCaptions;
-    String[] outputCaptions;
-    String debugString = "";
-    public Telemetry tele;
+    private boolean debugOn = false;
+    private int totalLines = 6;
+    private int staticLines = 0;
+    private String[] statics;
+    private String[] outputs;
+    private String[] staticCaptions;
+    private String[] outputCaptions;
+    private String debugString = "";
+    private Telemetry tele;
     /*
     debug: Mr. Output will output debug information to an
            additional line.
@@ -70,6 +70,10 @@ public class MrOutput {
     public void printStaticLine(int staticLine, String output) {
         printStaticLine(staticLine, 0, output);
     }
+    public void buildStaticLine(int staticLine, String part) {
+
+    }
+
 
     public void println(String caption, String output){
         for (int i = 0; i < outputs.length; i++) {
@@ -141,7 +145,7 @@ public class MrOutput {
             case 2:
                 return "FAIL"; //FAILure, fatal error because robot cannot recover from situation
             default:
-                return "NCAP"; //No CAPtion, captionLevel is not supported
+                return "NCAP"; //No CAPtion, captionLevel is not supported, or is null.
         }
     }
 }
