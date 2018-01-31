@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.lib;
 
 /*
 Mr. Output 2018
@@ -14,8 +14,6 @@ Mr. Output 2018 is developed by Brian Lu
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class MrOutput {
     /*

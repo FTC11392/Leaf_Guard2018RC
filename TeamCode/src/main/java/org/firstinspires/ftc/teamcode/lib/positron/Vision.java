@@ -1,24 +1,23 @@
-package org.firstinspires.ftc.teamcode;
-
-
+package org.firstinspires.ftc.teamcode.lib.positron;
 
 /*
-Vision 2018
+Vision component of Positron 2018
 
-Vision 2018 is Defenestration's class for all functions
-related to vision. It utilises both Vuforia and DogeCV, a
-computer vision library designed for the FTC 2017-2018
-season based on OpenCV.
+Positron is Defenestration's implementation for robot positioning.
+It has functions that allow it to position and align a robot with
+a combination of IMUs, encoders, and computer vision.
 
-Vision 2018 requires a 3rd party class by team 5484
-EnderBots called ClosableVuforiaLocalizer.java.
-Vision 2018 will not compile if not present
+IMU turns, when passing their desired end position, will NOT
+compensate. The robot will continue turning until the desired
+position is measured.
 
-Vision 2018 is developed by Brian Lu
+Positron 2018 is developed by Brian Lu
  */
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.BuildConfig;
+import org.firstinspires.ftc.teamcode.lib.ClosableVuforiaLocalizer;
 
 public class Vision {
     String vuforiaKey = BuildConfig.VUFORIA_KEY;
