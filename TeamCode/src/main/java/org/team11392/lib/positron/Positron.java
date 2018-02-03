@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib.positron;
+package org.team11392.lib.positron;
 
 /*
 Positron 2018
@@ -8,7 +8,7 @@ It has functions that allow it to position and align a robot with
 a combination of IMUs, encoders, and computer vision.
 
 IMU Turns require IMU.java
-Computer vision requires Vision.java.
+Computer vision requires DoubleVision.java.
 Encoders are not implemented yet.
 
 IMU turns, when passing their desired end position, will NOT

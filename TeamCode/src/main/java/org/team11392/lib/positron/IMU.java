@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib.positron;
+package org.team11392.lib.positron;
 
 /*
 IMU component of Positron 2018
@@ -24,7 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
-import org.firstinspires.ftc.teamcode.lib.MrOutput;
+import org.team11392.lib.MrOutput;
 import java.util.Locale;
 
 import static java.lang.Thread.sleep;
@@ -109,6 +109,11 @@ public class IMU implements Runnable{
                     out.println(2, "Fatal error, IMU functions will not run.");
                 }
             }
+            out.clearStaticLine(0);
+            out.setStaticCaption(0, "IMUlog");
+            out.buildStaticLine(0, "heading", heading + " deg");
+            out.buildStaticLine(0, "x", xPosition + "cm");
+            out.buildStaticLine(0, "y", yPosition + "cm");
         }
     }
 

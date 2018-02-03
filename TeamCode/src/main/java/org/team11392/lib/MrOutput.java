@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib;
+package org.team11392.lib;
 
 /*
 Mr. Output 2018
@@ -34,8 +34,9 @@ public class MrOutput {
     tele: The Telemetry object used by Mr. Output, it uses
           it to push telemetry to phones.
      */
-    private boolean debugOn = false;
-    private int totalLines = 6;
+    private Config config = new Config();
+    private boolean debugOn = config.mrOutputDebug;
+    private int totalLines = config.mrOutputLines;
     private int staticLines = 0;
     private String[] statics;
     private String[] outputs;
@@ -43,15 +44,15 @@ public class MrOutput {
     private String[] outputCaptions;
     private String debugString = "";
     private Telemetry tele;
-    public MrOutput(Telemetry tele, int staticLines, boolean debug) {
-        debugOn = debug;
+    public MrOutput(Telemetry tele, int staticLines) {
         this.tele = tele;
         addTelemetryLine("Starting Mr. Output...");
         this.staticLines = staticLines;
         // Amount of static lines should not be larger than the amount of total lines
         if (staticLines > totalLines) {
             staticLines = totalLines;
-            addTelemetryLine(1, "staticLines > totalLines in MrOutput. Please fix.");
+            buildDebugString("WARN", "staticLines(" + staticLines
+                    + ") > totalLines(" + totalLines + ")");
         }
         // Initialize arrays
         statics = new String[staticLines];
@@ -62,7 +63,7 @@ public class MrOutput {
         pushTelemetry();
     }
     // The public functions used to print "static" lines
-    public void printStaticLine(int staticLine, String caption, String output) {
+    public void setStaticLine(int staticLine, String caption, String output) {
         // Check if static line number exceeds amount of allocated static lines.
         if (!(staticLine >= staticLines) && (staticLine > -1)) {
             // Set static line
@@ -70,21 +71,53 @@ public class MrOutput {
             staticCaptions[staticLine] = caption;
 
         } else {
-            buildDebugString("WARN", "Cannot add static line");
+            buildDebugString("WARN", "Cannot add static line for " + staticLine);
         }
         buildTelemetry();
         pushTelemetry();
     }
     // Use captionCase to provide captions instead
-    public void printStaticLine(int staticLine, int captionLevel, String line) {
-        printStaticLine(staticLine, captionCase(captionLevel), line);
+    public void setStaticLine(int staticLine, int captionLevel, String line) {
+        setStaticLine(staticLine, captionCase(captionLevel), line);
     }
     // Use INFO as the default captions
-    public void printStaticLine(int staticLine, String output) {
-        printStaticLine(staticLine, 0, output);
+    public void setStaticLine(int staticLine, String output) {
+        setStaticLine(staticLine, 0, output);
     }
     public void buildStaticLine(int staticLine, String part) {
-
+        if (!(staticLine >= staticLines) && (staticLine > -1)) {
+            statics[staticLine] = statics[staticLine] + ", " + part;
+        } else {
+            buildDebugString("WARN", "Cannot build static line for " + staticLine);
+        }
+        buildTelemetry();
+        pushTelemetry();
+    }
+    public void buildStaticLine(int staticLine, String partCaption, String part) {
+        buildStaticLine(staticLine, part + ": " + part);
+    }
+    public void setStaticCaption(int staticLine, String caption) {
+        if (!(staticLine >= staticLines) && (staticLine > -1)) {
+            staticCaptions[staticLine] = caption;
+        } else {
+            buildDebugString("WARN", "Cannot set static caption for " + staticLine);
+        }
+    }
+    public void setStaticCaption(int staticLine, int captionLevel) {
+        setStaticCaption(staticLine, captionCase(captionLevel));
+    }
+    public void clearStaticLine(int staticLine, boolean clearCaption) {
+        if (!(staticLine >= staticLines) && (staticLine > -1)) {
+            if (clearCaption) {
+                staticCaptions[staticLine] = "";
+            }
+            statics[staticLine] = "";
+        } else {
+            buildDebugString("WARN", "Cannot clear line for " + staticLine);
+        }
+    }
+    public void clearStaticLine(int staticLine) {
+        clearStaticLine(staticLine, false);
     }
     // The public functions used to print "output" lines
     public void println(String caption, String output){
@@ -134,11 +167,11 @@ public class MrOutput {
         tele.clear();
         // Add data for all "static" lines first
         for (int i = 0; i < statics.length; i++) {
-            tele.addData(staticCaptions[i], statics[i]);
+            tele.addData(staticCaptions[i].substring(0, 8), statics[i].substring(0, 64));
         }
         // Then add data for "output" lines
         for (int i = 0; i < outputs.length; i++) {
-            tele.addData(outputCaptions[i], outputs[i]);
+            tele.addData(outputCaptions[i].substring(0, 3), outputs[i].substring(0, 64));
         }
         if (debugOn) {
             // If there are no debug phrases, make sure that the debug line
@@ -157,6 +190,8 @@ public class MrOutput {
     // Resolve an integer number to a caption, eases typing captions in functions
     private String captionCase(int captionLevel) {
         switch (captionLevel) {
+            case -3:
+                return "";     //Blank! No caption shown
             case -2:
                 return "DBUG"; //DeBUG, debug line for mr. output
             case -1:

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib;
+package org.team11392.lib.positron.doublevision;
 
 import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
 

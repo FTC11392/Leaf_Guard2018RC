@@ -67,9 +67,9 @@ public class MecanumHardware {
     public MecanumHardware (){
     }
 
-    /* Initialize standard Hardware interfaces */
+    /* Initialize standard CommonHardware interfaces */
     public void init(HardwareMap ahwMap) {
-        // Save reference to Hardware map
+        // Save reference to CommonHardware map
         hwMap = ahwMap;
 
         // Define and Initialize Motors

@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.team11392.lib.positron.IMU;
 import org.team11392.lib.MrOutput;
 
 /**
@@ -11,20 +13,18 @@ import org.team11392.lib.MrOutput;
  */
 
 
-@TeleOp(name="Mr. Output Test", group="Def Bot")
-public class MrOutputTest extends OpMode {
-    MrOutput out;
+@TeleOp(name="IMU Test", group="Def Bot")
+public class IMUTest extends OpMode {
+    IMU imu;
     int count = 0;
     public void init() {
-        out = new MrOutput(telemetry, 1, true);
+        HardwareMap hwMap = null;
+        imu = new IMU(hwMap, new MrOutput(telemetry, 1, true));
+        Thread imuThread = new Thread(imu);
+        imuThread.start();
     }
     public void loop() {
-        out.setStaticLine(0, "Looped: " + count);
-        out.println(1, "foo" + (count - 1));
-        out.println(count + "");
-        out.println(-1, "bar");
-        sleep(500);
-        count++;
+
     }
     public void sleep(int ms) {
         ElapsedTime time = new ElapsedTime();

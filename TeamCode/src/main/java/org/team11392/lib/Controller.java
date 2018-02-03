@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib;
+package org.team11392.lib;
 
 /*
 Controller 2018
@@ -13,4 +13,5 @@ Controller 2018 is developed by Brian Lu
  */
 
 public class Controller {
+
 }
