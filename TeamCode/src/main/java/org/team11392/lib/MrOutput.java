@@ -69,7 +69,6 @@ public class MrOutput {
             // Set static line
             statics[staticLine] = output;
             staticCaptions[staticLine] = caption;
-
         } else {
             buildDebugString("WARN", "Cannot add static line for " + staticLine);
         }
@@ -93,6 +92,7 @@ public class MrOutput {
         buildTelemetry();
         pushTelemetry();
     }
+    // The following lines are used to build data for telemetry. Beware, they are rather picky.
     public void buildStaticLine(int staticLine, String partCaption, String part) {
         buildStaticLine(staticLine, part + ": " + part);
     }

@@ -5,8 +5,10 @@ import java.util.Locale;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import org.team11392.lib.Config;
 
 @TeleOp (name="Mecanum Bot Linear", group="Def Bot")
 
@@ -17,7 +19,7 @@ public class MecanumBot extends LinearOpMode{
     
     private ElapsedTime runtime = new ElapsedTime();
     double time;
-    
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -52,15 +54,30 @@ public class MecanumBot extends LinearOpMode{
                 robot.liftHold();
             }
             
-            if (gamepad1.dpad_left) { 
-                robot.handsUp(0.1, 0); } 
-            else if (gamepad1.dpad_right ) { 
-                robot.handsDown(0.1); } 
-
-            else {
-                robot.handsHold();
+            if (gamepad2.right_trigger > 0.05) {
+                robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.arm.setPower(Range.clip(0.4, 0, 0.3));
+                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() + 40);
             }
-            
+            if (gamepad2.left_trigger > 0.05) {
+                robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.arm.setPower(Range.clip(-0.4, -0.3, 0));
+                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() - 40);
+            }
+
+            if (gamepad2.left_stick_button) {
+                robot.elbow.setPosition(Range.clip(-gamepad2.left_stick_y,0,1));
+            }
+
+            if (gamepad2.right_stick_button) {
+                robot.relicHand.setPosition(Range.clip(-gamepad2.right_stick_y,0,1));
+            }
+
+            if (gamepad1.left_bumper) {
+                robot.upDown();
+                sleep(100); //??add to make the turn REV can go 180 but MR can only go 135
+            }
+
             if (gamepad1.right_bumper ) { //release
                 robot.handsRelease(1);
             }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
@@ -34,15 +35,22 @@ public class MecanumHardware {
     public DcMotor  leftBack    = null;
     public DcMotor  rightBack   = null;
 
+    public DcMotor  arm;
+
     public Servo    leftHand    = null;
     public Servo    rightHand   = null;
     public Servo    leftHand2    = null;
     public Servo    rightHand2   = null;
-    public Servo    hands      = null; //392 to turn hands 
-    public Servo    relicHand   = null; //
+    public Servo    hands      = null; //658
     public Servo    lift        = null; //392 to lift hands
-    public Servo    arm         = null; //392 for relic arm to grab the relic
-    public Servo    hitArm      = null; //for hitting the jewel
+    //public Servo    lift2       = null; //392 to lift hands
+    //CRServo lift = null;  //test digital servo
+    //public Servo    arm         = null; //392 for relic arm to grab the relic
+    public Servo    elbow      = null; //digital servo
+    public Servo    relicHand   = null; //
+    public Servo    hitArm      = null; //for recognize the jewel color
+    public Servo    hitTurn     = null; //fot remove a jewel
+    public boolean zeroPosition = true;
 
     public ColorSensor jewel    = null;
     public DistanceSensor sensorDistance = null;
@@ -67,9 +75,9 @@ public class MecanumHardware {
     public MecanumHardware (){
     }
 
-    /* Initialize standard CommonHardware interfaces */
+    /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
-        // Save reference to CommonHardware map
+        // Save reference to Hardware map
         hwMap = ahwMap;
 
         // Define and Initialize Motors
@@ -87,6 +95,8 @@ public class MecanumHardware {
         rightFront = hwMap.get(DcMotor.class, "rightFront");
         leftBack   = hwMap.get(DcMotor.class, "leftBack");
         rightBack  = hwMap.get(DcMotor.class, "rightBack");
+
+        arm = hwMap.get(DcMotor.class, "arm");
         //imu needs hardware port channel to work
         /*
         imu = hwMap.get(BNO055IMU.class, "imu");
@@ -109,6 +119,8 @@ public class MecanumHardware {
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         zeroFloat();
 
         // Define and initialize ALL installed servos.
@@ -116,17 +128,24 @@ public class MecanumHardware {
         rightHand = hwMap.get(Servo.class, "right_hand");
         leftHand2  = hwMap.get(Servo.class, "left_hand2");
         rightHand2 = hwMap.get(Servo.class, "right_hand2");
-        //relicHand = hwMap.get(Servo.class, "relic_hand");
-        //hitArm    = hwMap.get(Servo.class, "hit_arm");
-        lift      = hwMap.get(Servo.class, "lift");   //Vex motor 
-        //arm       = hwMap.get(Servo.class, "arm");    //Vex motor 
+
+        lift      = hwMap.get(Servo.class, "lift");   //Vex motor
+        //lift2      = hwMap.get(Servo.class, "lift2");   //Vex motor
+        //lift      = hwMap.get(CRServo.class, "lift");
+        //arm       = hwMap.get(Servo.class, "arm");    //Vex motor
+        elbow      = hwMap.get(Servo.class, "elbow");
+        relicHand = hwMap.get(Servo.class, "gripper");
+        hitArm    = hwMap.get(Servo.class, "hit_arm");
+        hitTurn   = hwMap.get(Servo.class, "hit_turn");
+        hitArm.setPosition(0.7);
+        hitTurn.setPosition(0.5);
         //arm.setDirection(Servo.Direction.REVERSE);  //to be consistant on gamepad controller
-        hands= hwMap.get(Servo.class, "hands");   //Vex motor 
+        hands= hwMap.get(Servo.class, "hands");   //high torque servo
         //hands2.setDirection(Servo.Direction.REVERSE); //to be consistant on gamepad 
         
         // Color sensor
-        //jewel = hwMap.get(ColorSensor.class, "jewel");
-        //jewel.enableLed(false);
+        jewel = hwMap.get(ColorSensor.class, "jewel");
+        jewel.enableLed(false);
         // get a reference to the distance sensor that shares the same name.
         //sensorDistance = hwMap.get(DistanceSensor.class, "jewel");
     
@@ -137,7 +156,7 @@ public class MecanumHardware {
 
         // OR...  Do Not Activate the Camera Monitor View, to save power
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = "AXf+Wrj/////AAAAGZGUqlzc6U6hmObEHD5F0Rs4UCf3b5DuQz1Ov1CU0o6AujYCKlpbLRsuum0xiPusHkjdutPw6Gd4J6VWT5e9W9enUQvi8TjXNkZi5xcfp0l+ZAkMa5Iu0OzkxrDYkYYz46CdkifIoDrCt6691m9nS3utYyYqX7nxpKqD4cu1sJRg9hSzmkij9ITjFzM7ezyT/FBtKlNViRdz+Vynpy/QyOA/oMJCCGpLtCiltHBfMxolp+ZU7D/Jyv/JPG926cHyH79WjKFAS8HmJfu1z1z6qpNNQ+MOrLHzvsw8UI7s8biHZg6batS6fVNcr1rAbTrXLEYw3x5VCmhYc/zz+B+YF6b4jFmJ//q5CxcQX6VAiXGr";
+        parameters.vuforiaLicenseKey = BuildConfig.VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
@@ -234,6 +253,17 @@ public class MecanumHardware {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
     */
+
+    public void upDown() {
+        if (zeroPosition) {
+            hands.setPosition(0.);
+        }
+        else {
+            hands.setPosition(1.);
+        }
+        zeroPosition = !zeroPosition;
+    }
+
     public void handsOpen(int index ) {
         if (index == 1) { // front hands
             leftHand.setPosition(0.9);   //smaller, closer
@@ -250,12 +280,11 @@ public class MecanumHardware {
     }
     
     public void handsRelease(int index ) {
-        index = 1;
-        if (index == 1) {
             leftHand.setPosition(0.5);
             rightHand.setPosition(0.5);
-            //hands2.setPosition(0.4);
-        }
+
+            leftHand2.setPosition(0.5);   //smaller, closer
+            rightHand2.setPosition(0.5); //larger, closer
     }
     
     public void handsClose(int index) {
@@ -290,12 +319,12 @@ public class MecanumHardware {
         */
     }
     
-    public void armUp(double change, int time) {
+    /*public void armUp(double change, int time) {
         double pos = 0.55 + change ;
         pos = Range.clip(pos, 0.5, 0.75);
         arm.setPosition(pos);
         //sleep(time);
-    } 
+    } */
     
     public void handsUp(double change, int time) {
         double pos = 0.55 + change ;
@@ -313,7 +342,8 @@ public class MecanumHardware {
         hands.setPosition(pos);
         //sleep(500);
     }
-    
+
+    /*
     public void armHold() {
         arm.setPosition(0.5);
     }
@@ -323,21 +353,24 @@ public class MecanumHardware {
         arm.setPosition(pos);
         //sleep(500);
     }
-    
+    */
     public void liftUp(double change, int time) {
         double pos = 0.5 + change ;
         pos = Range.clip(pos, 0.5, 0.75);
         lift.setPosition(pos);
-        //sleep(time);
+        //lift2.setPosition(pos);
     }
     
     public void liftHold() {
         lift.setPosition(0.5);
+        //lift2.setPosition(0.5);
     }
+
     
     public void liftDown(double change) {
         double pos = 0.5 - Math.min(change, 0.15);
         lift.setPosition(pos);
+        //lift2.setPosition(pos);
         //sleep(500);
     }
     

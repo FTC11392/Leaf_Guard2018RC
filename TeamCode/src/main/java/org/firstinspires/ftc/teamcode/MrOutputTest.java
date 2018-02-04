@@ -11,12 +11,12 @@ import org.team11392.lib.MrOutput;
  */
 
 
-@TeleOp(name="Mr. Output Test", group="Def Bot")
+@TeleOp(name="Mr. Output Test", group="Leaf Guard Testing")
 public class MrOutputTest extends OpMode {
     MrOutput out;
     int count = 0;
     public void init() {
-        out = new MrOutput(telemetry, 1, true);
+        out = new MrOutput(telemetry, 1);
     }
     public void loop() {
         out.setStaticLine(0, "Looped: " + count);

@@ -130,10 +130,10 @@ public class IMU implements Runnable{
     }
 
     private void updatePosition() {
-        Acceleration linearAccel = imu.getLinearAcceleration();
-        Acceleration overallAccel = imu.getOverallAcceleration();
-        xPosition = (updateInterval / 1000) * linearAccel.xAccel + xPosition;
-        yPosition = (updateInterval / 1000) * linearAccel.yAccel + yPosition;
+        //Acceleration linearAccel = imu.getLinearAcceleration();
+        //Acceleration overallAccel = imu.getOverallAcceleration();
+        //xPosition = (updateInterval / 1000) * linearAccel.xAccel + xPosition;
+        //yPosition = (updateInterval / 1000) * linearAccel.yAccel + yPosition;
 
     }
 

@@ -13,13 +13,13 @@ import org.team11392.lib.MrOutput;
  */
 
 
-@TeleOp(name="IMU Test", group="Def Bot")
+@TeleOp(name="IMU Test", group="Leaf Guard Testing")
 public class IMUTest extends OpMode {
     IMU imu;
     int count = 0;
     public void init() {
-        HardwareMap hwMap = null;
-        imu = new IMU(hwMap, new MrOutput(telemetry, 1, true));
+        HardwareMap hwMap = new MecanumHardware().hwMap;
+        imu = new IMU(hwMap, new MrOutput(telemetry, 1));
         Thread imuThread = new Thread(imu);
         imuThread.start();
     }
