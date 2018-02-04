@@ -182,6 +182,20 @@ public class MrOutput {
             debugString = "";
         }
     }
+
+    String toString(int integer) {
+        return integer + "";
+    }
+
+    String toString(double decimal) { return decimal + ""; }
+
+    String toString(boolean boole) {
+        if (boole) {
+            return "true";
+        }
+        return "false";
+    }
+
     // Display all added telemetry
     private void pushTelemetry() {
         tele.update();
@@ -191,7 +205,7 @@ public class MrOutput {
     private String captionCase(int captionLevel) {
         switch (captionLevel) {
             case -3:
-                return "";     //Blank! No caption shown
+                return "";     //Blank! No caption shown (there WILL be a colon)
             case -2:
                 return "DBUG"; //DeBUG, debug line for mr. output
             case -1:
