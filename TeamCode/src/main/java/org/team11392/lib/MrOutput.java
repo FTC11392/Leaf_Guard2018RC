@@ -79,7 +79,7 @@ public class MrOutput {
     public void setStaticLine(int staticLine, int captionLevel, String line) {
         setStaticLine(staticLine, captionCase(captionLevel), line);
     }
-    // Use INFO as the default captions
+    // Use INFO as the default caption
     public void setStaticLine(int staticLine, String output) {
         setStaticLine(staticLine, 0, output);
     }
@@ -167,11 +167,23 @@ public class MrOutput {
         tele.clear();
         // Add data for all "static" lines first
         for (int i = 0; i < statics.length; i++) {
-            tele.addData(staticCaptions[i].substring(0, 8), statics[i].substring(0, 64));
+            if (staticCaptions[i].length() > 8) {
+                staticCaptions[i] = staticCaptions[i].substring(0,8);
+            }
+            if (statics[i].length() > 64) {
+                statics[i] = statics[i].substring(0,64-staticCaptions[i].length());
+            }
+            tele.addData(staticCaptions[i], statics[i]);
         }
         // Then add data for "output" lines
         for (int i = 0; i < outputs.length; i++) {
-            tele.addData(outputCaptions[i].substring(0, 3), outputs[i].substring(0, 64));
+            if (outputCaptions[i].length() > 3) {
+                outputCaptions[i] = outputCaptions[i].substring(0,3);
+            }
+            if (outputs[i].length() > 64) {
+                outputs[i] = outputs[i].substring(0,64-outputCaptions[i].length());
+            }
+            tele.addData(outputCaptions[i], outputs[i]);
         }
         if (debugOn) {
             // If there are no debug phrases, make sure that the debug line
@@ -182,6 +194,8 @@ public class MrOutput {
             debugString = "";
         }
     }
+
+    String toString(String string) { return string; }
 
     String toString(int integer) {
         return integer + "";

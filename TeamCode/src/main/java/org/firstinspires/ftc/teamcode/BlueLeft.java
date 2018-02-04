@@ -26,6 +26,8 @@ public class BlueLeft extends OpMode{
     private AutoHardware robot;
     private ElapsedTime et;
     private Positron pos;
+
+    private boolean jewelRun = false;
     @Override
     public void init() {
         out = new MrOutput(telemetry, 2);
@@ -37,6 +39,11 @@ public class BlueLeft extends OpMode{
     }
     @Override
     public void loop() {
+        if (!jewelRun) {
+            out.println("jewelLoop has not been run. running.");
+            auto.jewelLoop(false);
+            jewelRun = true;
+        }
 
     }
 }
