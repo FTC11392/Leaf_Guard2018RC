@@ -29,7 +29,7 @@ public class MecanumBot extends LinearOpMode{
         double up = 0.5, down = 0.5;
         double adjuster = 0.7;
         robot.init(hardwareMap);
-
+        private boolean clawTurning = false;
         telemetry.addData("Status", "Initialized");
     
         waitForStart();
@@ -37,6 +37,7 @@ public class MecanumBot extends LinearOpMode{
         runtime.reset(); 
         
         while (opModeIsActive()) { 
+            clawTurning = false;
             // Show the elapsed game time and wheel power.
             //telemetry.addData("Positions", "Y (%.2f)", "X (%.2f)", "Turn (%.2f)", driveY, driveX, driveTurn);
             
@@ -72,8 +73,21 @@ public class MecanumBot extends LinearOpMode{
             if (gamepad2.right_stick_button) {
                 robot.relicHand.setPosition(Range.clip(-gamepad2.right_stick_y,0,1));
             }
+            
+            if (gamepad2.left_stick_y > 0.05) {
+                robot.elbow.setPosition(robot.elbow.getPosition() + 0.05);
+            } else if (gamepad2.left_stick_y < 0.05) {
+                robot.elbow.setPosition(robot.elbow.getPosition() - 0.05);
+            }
+            
+            if (gamepad2.right_stick_y > 0.05) {
+                robot.relicHand.setPosition(robot.relicHand.getPosition() + 0.05);
+            } else if (gamepad2.right_stick_y < 0.05) {
+                robot.relicHand.setPosition(robot.relicHand.getPosition() - 0.05);
+            }
 
-            if (gamepad1.left_bumper) {
+            if (gamepad1.left_bumper && !clawTurning) {
+                clawTurning = true
                 robot.upDown();
                 sleep(100); //??add to make the turn REV can go 180 but MR can only go 135
             }
