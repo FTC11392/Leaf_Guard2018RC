@@ -25,16 +25,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.team11392.lib.Config;
+
 import java.util.Locale;
 
 public class MecanumHardware {
-
+    public Config config = new Config();
     /* Public OpMode members. */
     public DcMotor  leftFront   = null;
     public DcMotor  rightFront  = null;
     public DcMotor  leftBack    = null;
     public DcMotor  rightBack   = null;
-
+    public DcMotor  climbAssist;
     public DcMotor  arm;
 
     public Servo    leftHand    = null;
@@ -63,12 +65,15 @@ public class MecanumHardware {
     public VuforiaTrackables relicTrackables;
     public VuforiaTrackable relicTemplate;
     public RelicRecoveryVuMark vuMark;
+
+    double updownSecs = 0;
     //IMU jazz
     /*
     public BNO055IMU imu;
     Orientation angles;
     */
     /* local OpMode members. */
+    ElapsedTime updownTime;
     HardwareMap hwMap           =  null;
 
     /* Constructor */
@@ -77,6 +82,7 @@ public class MecanumHardware {
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
+        updownTime = new ElapsedTime();
         // Save reference to Hardware map
         hwMap = ahwMap;
 
@@ -95,6 +101,8 @@ public class MecanumHardware {
         rightFront = hwMap.get(DcMotor.class, "rightFront");
         leftBack   = hwMap.get(DcMotor.class, "leftBack");
         rightBack  = hwMap.get(DcMotor.class, "rightBack");
+
+        climbAssist = hwMap.get(DcMotor.class, "climbAssist");
 
         arm = hwMap.get(DcMotor.class, "arm");
         //imu needs hardware port channel to work
@@ -156,7 +164,7 @@ public class MecanumHardware {
 
         // OR...  Do Not Activate the Camera Monitor View, to save power
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = BuildConfig.VUFORIA_KEY;
+        parameters.vuforiaLicenseKey = config.VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
@@ -170,13 +178,15 @@ public class MecanumHardware {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        climbAssist.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void zeroBreak() {
+    public void zeroBrake() {
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        climbAssist.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     
     public void setPowerZero() {
@@ -255,13 +265,19 @@ public class MecanumHardware {
     */
 
     public void upDown() {
-        if (zeroPosition) {
-            hands.setPosition(0.);
+        if (updownTime.seconds() - updownSecs > 0.3) {
+            if (hands.getPosition() == 1) {
+                hands.setPosition(0.);
+                zeroPosition = !zeroPosition;
+                updownTime.reset();
+                updownSecs = updownTime.seconds();
+            } else if (hands.getPosition() == 0){
+                hands.setPosition(1.);
+                zeroPosition = !zeroPosition;
+                updownTime.reset();
+                updownSecs = updownTime.seconds();
+            }
         }
-        else {
-            hands.setPosition(1.);
-        }
-        zeroPosition = !zeroPosition;
     }
 
     public void handsOpen(int index ) {
@@ -280,11 +296,14 @@ public class MecanumHardware {
     }
     
     public void handsRelease(int index ) {
+        if (index == 1) {
             leftHand.setPosition(0.5);
             rightHand.setPosition(0.5);
-
+        }
+        if (index == 3) {
             leftHand2.setPosition(0.5);   //smaller, closer
             rightHand2.setPosition(0.5); //larger, closer
+        }
     }
     
     public void handsClose(int index) {

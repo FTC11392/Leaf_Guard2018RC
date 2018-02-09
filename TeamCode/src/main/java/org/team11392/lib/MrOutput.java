@@ -166,22 +166,31 @@ public class MrOutput {
         // Clearing telemetry, not required, but good idea
         tele.clear();
         // Add data for all "static" lines first
+
         for (int i = 0; i < statics.length; i++) {
-            if (staticCaptions[i].length() > 8) {
-                staticCaptions[i] = staticCaptions[i].substring(0,8);
-            }
-            if (statics[i].length() > 64) {
-                statics[i] = statics[i].substring(0,64-staticCaptions[i].length());
+            try {
+                if (staticCaptions[i].length() > 8) {
+                    staticCaptions[i] = staticCaptions[i].substring(0, 8);
+                }
+                if (statics[i].length() > 64) {
+                    statics[i] = statics[i].substring(0, 64 - staticCaptions[i].length());
+                }
+            } catch (NullPointerException npe) {
+                buildDebugString("WARN", "null line");
             }
             tele.addData(staticCaptions[i], statics[i]);
         }
         // Then add data for "output" lines
         for (int i = 0; i < outputs.length; i++) {
-            if (outputCaptions[i].length() > 3) {
-                outputCaptions[i] = outputCaptions[i].substring(0,3);
-            }
-            if (outputs[i].length() > 64) {
-                outputs[i] = outputs[i].substring(0,64-outputCaptions[i].length());
+            try {
+                if (outputCaptions[i].length() > 3) {
+                    outputCaptions[i] = outputCaptions[i].substring(0,3);
+                }
+                if (outputs[i].length() > 64) {
+                    outputs[i] = outputs[i].substring(0,64-outputCaptions[i].length());
+                }
+            } catch (NullPointerException npe) {
+                buildDebugString("WARN", "null line");
             }
             tele.addData(outputCaptions[i], outputs[i]);
         }

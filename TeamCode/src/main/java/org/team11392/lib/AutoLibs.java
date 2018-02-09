@@ -1,33 +1,41 @@
 package org.team11392.lib;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.team11392.lib.hardware.AutoHardware;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.detectors.*;
+
+import org.firstinspires.ftc.teamcode.MecanumHardware;
 
 public class AutoLibs {
-    AutoHardware robot;
+    MecanumHardware robot;
     MrOutput out;
+    private CryptoboxDetector cryptoboxDetector = null;
 
-    public AutoLibs(AutoHardware robot, MrOutput out) {
+    public AutoLibs(MecanumHardware robot, MrOutput out) {
         this.robot = robot;
         this.out = out;
     }
 
     // This function is the entire process of detecting and moving a jewel
     public void jewelLoop(boolean redTeam) {
-        double leftPosition = 0;
-        double rightPosition = 0;
+        double leftPosition = 0.2;
+        double rightPosition = 0.8;
         out.println("jewel loop started");
         // Bring the base to the middle
-        robot.jewelBase.setPosition(0.5);
+        robot.hitTurn.setPosition(0.5);
         // Set the arm to an upright position
-        robot.jewelArm.setPosition(0.2);
+        robot.hitArm.setPosition(0.2);
         // Bring down the jewel arm slowly
-        while (robot.jewelArm.getPosition() > 0.03) {
+        while (robot.hitArm.getPosition() > 0.03) {
             sleep(100);
-            robot.jewelArm.setPosition(robot.jewelArm.getPosition() - 0.02);
+            robot.hitArm.setPosition(robot.hitArm.getPosition() - 0.02);
         }
         // The following lines are for detecting the jewel color and moving the base
-        robot.jewelEye.enableLed(true);
+        robot.jewel.enableLed(true);
         int R, G, B;
         ElapsedTime et = new ElapsedTime();
         boolean jewelRed  = false;
@@ -35,9 +43,9 @@ public class AutoLibs {
         out.setStaticCaption(0,0);
         while ((!jewelRed || !jewelBlue) && et.seconds() < 5) {
             out.clearStaticLine(0);
-            R = robot.jewelEye.red();
-            G = robot.jewelEye.green();
-            B = robot.jewelEye.blue();
+            R = robot.jewel.red();
+            G = robot.jewel.green();
+            B = robot.jewel.blue();
             out.buildStaticLine(0,"red", out.toString(R));
             out.buildStaticLine(0,"green", out.toString(G));
             out.buildStaticLine(0,"blue", out.toString(B));
@@ -56,17 +64,22 @@ public class AutoLibs {
             }
         }
         if (jewelRed && redTeam)
-            robot.jewelBase.setPosition(leftPosition);
+            robot.hitTurn.setPosition(leftPosition);
         if (jewelRed && !redTeam)
-            robot.jewelBase.setPosition(rightPosition);
+            robot.hitTurn.setPosition(rightPosition);
         if (jewelBlue && !redTeam)
-            robot.jewelBase.setPosition(leftPosition);
+            robot.hitTurn.setPosition(leftPosition);
         if (jewelBlue && redTeam)
-            robot.jewelBase.setPosition(rightPosition);
-        robot.jewelBase.setPosition(0.5);
-        robot.jewelArm.setPosition(0.7);
-        robot.jewelEye.enableLed(false);
+            robot.hitTurn.setPosition(rightPosition);
+        robot.hitTurn.setPosition(0.5);
+        sleep(200);
+        robot.hitArm.setPosition(0.7);
+        robot.jewel.enableLed(false);
         out.println("jewel loop ended");
+    }
+
+    public void cryptoPosition() {
+
     }
 
 

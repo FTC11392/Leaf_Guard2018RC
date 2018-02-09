@@ -23,11 +23,12 @@ import org.team11392.lib.positron.Positron;
 public class RedLeft extends OpMode{
     private MrOutput out;
     private AutoLibs auto;
-    private AutoHardware robot;
+    private MecanumHardware robot;
     private ElapsedTime et;
     private Positron pos;
 
     private boolean jewelRun = false;
+    private boolean parkRun = false;
     @Override
     public void init() {
         out = new MrOutput(telemetry, 2);
@@ -43,6 +44,9 @@ public class RedLeft extends OpMode{
             out.println("jewelLoop has not been run. running.");
             auto.jewelLoop(true);
             jewelRun = true;
+        }
+        if (!parkRun) {
+            auto.cryptoPosition();
         }
         if (et.seconds() > 25) {
             out.println("OOF");

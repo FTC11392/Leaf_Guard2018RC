@@ -17,9 +17,11 @@ Positron 2018 is developed by Brian Lu
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.BuildConfig;
+import org.team11392.lib.Config;
 
 public class DoubleVision {
-    String vuforiaKey = BuildConfig.VUFORIA_KEY;
+    Config config = new Config();
+    String vuforiaKey = config.VUFORIA_KEY;
     public ClosableVuforiaLocalizer vuforia;
     public VuforiaTrackables relicTrackables;
     public VuforiaTrackable relicTemplate;

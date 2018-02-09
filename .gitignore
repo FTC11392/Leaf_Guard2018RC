@@ -24,7 +24,7 @@ Thumbs.db
 .gradle
 build/
 
-!.idea/codeStyleSettings.xml
-!/doc/apk/FtcDriverStation-release.apk
-/logs/
-vuforia.properties
+VuforiaKeyClass.java
+
+*ASUS_PC_01*
+

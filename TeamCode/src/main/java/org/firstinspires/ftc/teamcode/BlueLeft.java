@@ -23,7 +23,7 @@ import org.team11392.lib.positron.Positron;
 public class BlueLeft extends OpMode{
     private MrOutput out;
     private AutoLibs auto;
-    private AutoHardware robot;
+    private MecanumHardware robot;
     private ElapsedTime et;
     private Positron pos;
 
@@ -31,6 +31,7 @@ public class BlueLeft extends OpMode{
     @Override
     public void init() {
         out = new MrOutput(telemetry, 2);
+        robot = new MecanumHardware();
         robot.init(hardwareMap);
         et = new ElapsedTime();
         auto = new AutoLibs(robot, out);
@@ -44,6 +45,7 @@ public class BlueLeft extends OpMode{
             auto.jewelLoop(false);
             jewelRun = true;
         }
-
+        if (et.seconds() > 29)
+            stop();
     }
 }
