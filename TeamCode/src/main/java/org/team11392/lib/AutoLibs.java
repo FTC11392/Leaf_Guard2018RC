@@ -92,8 +92,11 @@ public class AutoLibs {
     }
 
     public void cryptoPosition(boolean rotateBot, boolean farTurn) {
+        //turn the phone servo to face VuMark
         robot.phoneServo.setPosition(vuMarkPos);
+        //wait until detected
         robot.detectPic();
+        //Convert enum to char
         switch (robot.vuMark) {
             case LEFT:
                 column = 'l';
@@ -108,28 +111,33 @@ public class AutoLibs {
                 out.println(1,"wait wut, bad vu reading");
                 break;
         }
+        //remove vuforia from camera for DogeCV
+        robot.vuforia.close();
+        //revert phone position back to side
         robot.phoneServo.setPosition(0.5);
         // DogeCV functions
+        //moving with auto should be rigid
         robot.zeroBrake();
+        //dogecv declarations
         cryptoboxDetector = new CryptoboxDetector();
         cryptoboxDetector.init(robot.hwMap.appContext, CameraViewDisplay.getInstance());
         cryptoboxDetector.rotateMat = true;
         cryptoboxDetector.enable();
+        //the middle X pixel of the camera
         centerPixel = cryptoboxDetector.getFrameSize().width/2;
-        robot.move(0,0,0);
         if (!farTurn) {
             while (!cryptoboxDetector.isCryptoBoxDetected()) {
                 shiftCameraLeft(rotateBot);
             }
         } else {
             if (!rotateBot) {
-                robot.moveByTime(0.2,0,0,2000);
+                robot.moveByTime(shiftSpeed,0,0,2000);
                 robot.imuTurnLeft(-90);
                 while (!cryptoboxDetector.isCryptoBoxDetected()) {
                     shiftCameraLeft(rotateBot);
                 }
             } else {
-                robot.moveByTime(-0.2,0,0,2000);
+                robot.moveByTime(-shiftSpeed,0,0,2000);
                 robot.imuTurnRight(90);
                 while (!cryptoboxDetector.isCryptoBoxDetected()) {
                     shiftCameraRight(rotateBot);
@@ -155,6 +163,7 @@ public class AutoLibs {
                 }
                 break;
             case 'c':
+                // probs already centered
                 break;
             case 'r':
                 while (Math.abs(centerPixel-cryptoboxDetector.getCryptoBoxRightPosition()) > pixelAccuracy) {
@@ -169,10 +178,10 @@ public class AutoLibs {
                 break;
         }
         robot.imuTurnRight(robot.getIMUHeading() + 90);
-        robot.moveByTime(0.2,0,0, 8000);
+        robot.moveByTime(shiftSpeed,0,0, 8000);
         robot.handsOpen(1);
         robot.handsOpen(3);
-        robot.moveByTime(0.2,0,0, 1000);
+        robot.moveByTime(shiftSpeed,0,0, 1000);
         robot.setPowerZero();
     }
 
@@ -189,15 +198,15 @@ public class AutoLibs {
 
     private void shiftCameraLeft(boolean rotateBot) {
         if (!rotateBot)
-            robot.move(0.2,0,0);
+            robot.move(shiftSpeed,0,0);
         if (rotateBot)
-            robot.move(-0.2,0,0);
+            robot.move(-shiftSpeed,0,0);
     }
     private void shiftCameraRight(boolean rotateBot) {
         if (!rotateBot)
-            robot.move(-0.2,0,0);
+            robot.move(-shiftSpeed,0,0);
         if (rotateBot)
-            robot.move(0.2,0,0);
+            robot.move(shiftSpeed,0,0);
     }
 
     public void runPile() {
