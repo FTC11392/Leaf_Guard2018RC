@@ -8,13 +8,21 @@ import android.graphics.BitmapFactory;
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.detectors.*;
 
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.MecanumHardware;
+
+import static org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark.LEFT;
 
 public class AutoLibs {
     MecanumHardware robot;
     MrOutput out;
-    private CryptoboxDetector cryptoboxDetector = null;
-
+    private CryptoboxDetector cryptoboxDetector;
+    char column = 'c';
+    int columnOffest = 0;
+    int pixelAccuracy = 80;
+    double centerPixel = 500;
+    double shiftSpeed = 0.2;
+    double vuMarkPos = 0.3;
     public AutoLibs(MecanumHardware robot, MrOutput out) {
         this.robot = robot;
         this.out = out;
@@ -22,6 +30,12 @@ public class AutoLibs {
 
     // This function is the entire process of detecting and moving a jewel
     public void jewelLoop(boolean redTeam) {
+        robot.handsClose(1);
+        robot.handsClose(3);
+        sleep(300);
+        robot.liftUp(0.2, 0);
+        sleep(1000);
+        robot.liftHold();
         double leftPosition = 0.2;
         double rightPosition = 0.8;
         out.println("jewel loop started");
@@ -53,16 +67,15 @@ public class AutoLibs {
             // If jewel is red
             if (R > G + 1.5 && R > B + 1.5) {
                 jewelRed = true;
-                // Move the base to the side
                 out.println("jewel red");
             }
             //if jewel is blue
             if (B > G + 1.5 && B > R + 1.5) {
                 jewelBlue = true;
-                // Move the base to the side
                 out.println("jewel blue");
             }
         }
+        // Move the base to the side, depending on the team
         if (jewelRed && redTeam)
             robot.hitTurn.setPosition(leftPosition);
         if (jewelRed && !redTeam)
@@ -78,10 +91,122 @@ public class AutoLibs {
         out.println("jewel loop ended");
     }
 
-    public void cryptoPosition() {
-
+    public void cryptoPosition(boolean rotateBot, boolean farTurn) {
+        robot.phoneServo.setPosition(vuMarkPos);
+        robot.detectPic();
+        switch (robot.vuMark) {
+            case LEFT:
+                column = 'l';
+                break;
+            case CENTER:
+                column = 'c';
+                break;
+            case RIGHT:
+                column = 'r';
+                break;
+            default:
+                out.println(1,"wait wut, bad vu reading");
+                break;
+        }
+        robot.phoneServo.setPosition(0.5);
+        // DogeCV functions
+        robot.zeroBrake();
+        cryptoboxDetector = new CryptoboxDetector();
+        cryptoboxDetector.init(robot.hwMap.appContext, CameraViewDisplay.getInstance());
+        cryptoboxDetector.rotateMat = true;
+        cryptoboxDetector.enable();
+        centerPixel = cryptoboxDetector.getFrameSize().width/2;
+        robot.move(0,0,0);
+        if (!farTurn) {
+            while (!cryptoboxDetector.isCryptoBoxDetected()) {
+                shiftCameraLeft(rotateBot);
+            }
+        } else {
+            if (!rotateBot) {
+                robot.moveByTime(0.2,0,0,2000);
+                robot.imuTurnLeft(-90);
+                while (!cryptoboxDetector.isCryptoBoxDetected()) {
+                    shiftCameraLeft(rotateBot);
+                }
+            } else {
+                robot.moveByTime(-0.2,0,0,2000);
+                robot.imuTurnRight(90);
+                while (!cryptoboxDetector.isCryptoBoxDetected()) {
+                    shiftCameraRight(rotateBot);
+                }
+            }
+        }
+        robot.setPowerZero();
+        setCryptoPerpendicular(rotateBot, farTurn);
+        while (Math.abs(centerPixel-cryptoboxDetector.getCryptoBoxCenterPosition()) > pixelAccuracy) {
+            if (centerPixel + columnOffest > cryptoboxDetector.getCryptoBoxCenterPosition())
+                shiftCameraRight(rotateBot);
+            if (centerPixel + columnOffest < cryptoboxDetector.getCryptoBoxCenterPosition())
+                shiftCameraLeft(rotateBot);
+        }
+        setCryptoPerpendicular(rotateBot, farTurn);
+        switch (column) {
+            case 'l':
+                while (Math.abs(centerPixel-cryptoboxDetector.getCryptoBoxLeftPosition()) > pixelAccuracy) {
+                    if (centerPixel + columnOffest > cryptoboxDetector.getCryptoBoxLeftPosition())
+                        shiftCameraRight(rotateBot);
+                    if (centerPixel + columnOffest < cryptoboxDetector.getCryptoBoxLeftPosition())
+                        shiftCameraLeft(rotateBot);
+                }
+                break;
+            case 'c':
+                break;
+            case 'r':
+                while (Math.abs(centerPixel-cryptoboxDetector.getCryptoBoxRightPosition()) > pixelAccuracy) {
+                    if (centerPixel + columnOffest > cryptoboxDetector.getCryptoBoxRightPosition())
+                        shiftCameraRight(rotateBot);
+                    if (centerPixel + columnOffest < cryptoboxDetector.getCryptoBoxRightPosition())
+                        shiftCameraLeft(rotateBot);
+                }
+                break;
+            default:
+                out.println(1,"wait wut, improper column variable");
+                break;
+        }
+        robot.imuTurnRight(robot.getIMUHeading() + 90);
+        robot.moveByTime(0.2,0,0, 8000);
+        robot.handsOpen(1);
+        robot.handsOpen(3);
+        robot.moveByTime(0.2,0,0, 1000);
+        robot.setPowerZero();
     }
 
+    private void setCryptoPerpendicular(boolean rotateBot, boolean farTurn) {
+        if (!rotateBot && !farTurn)
+            robot.imuSet(0);
+        if (!rotateBot && farTurn)
+            robot.imuSet(-90);
+        if (rotateBot && !farTurn)
+            robot.imuSet(0);
+        if (rotateBot && farTurn)
+            robot.imuSet(90);
+    }
+
+    private void shiftCameraLeft(boolean rotateBot) {
+        if (!rotateBot)
+            robot.move(0.2,0,0);
+        if (rotateBot)
+            robot.move(-0.2,0,0);
+    }
+    private void shiftCameraRight(boolean rotateBot) {
+        if (!rotateBot)
+            robot.move(-0.2,0,0);
+        if (rotateBot)
+            robot.move(0.2,0,0);
+    }
+
+    public void runPile() {
+        //TODO Glyph pile scavenge
+    }
+
+    public void navToCryptobox() {
+        //TODO navigate back to cryptobox from pile
+    }
 
     public void sleep(int ms) {
         ElapsedTime et = new ElapsedTime();

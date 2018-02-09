@@ -16,19 +16,19 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.team11392.lib.AutoLibs;
 import org.team11392.lib.MrOutput;
-import org.team11392.lib.hardware.AutoHardware;
 import org.team11392.lib.positron.Positron;
 
 @Autonomous (name="RedLeft", group="Leaf Guard")
 public class RedLeft extends OpMode{
+    boolean redTeam = true;
+    boolean rotateBot = !redTeam;
+    boolean farTurn = false;
+
     private MrOutput out;
     private AutoLibs auto;
     private MecanumHardware robot;
     private ElapsedTime et;
     private Positron pos;
-
-    private boolean jewelRun = false;
-    private boolean parkRun = false;
     @Override
     public void init() {
         out = new MrOutput(telemetry, 2);
@@ -38,18 +38,19 @@ public class RedLeft extends OpMode{
         pos = new Positron();
         out.println("Initialized!");
     }
+
+    @Override
+    public void init_loop() {
+        auto.jewelLoop(redTeam);
+        auto.cryptoPosition(rotateBot, farTurn);
+    }
+
     @Override
     public void loop() {
-        if (!jewelRun) {
-            out.println("jewelLoop has not been run. running.");
-            auto.jewelLoop(true);
-            jewelRun = true;
-        }
-        if (!parkRun) {
-            auto.cryptoPosition();
-        }
         if (et.seconds() > 25) {
-            out.println("OOF");
+            auto.navToCryptobox();
+            stop();
         }
+        auto.runPile();
     }
 }

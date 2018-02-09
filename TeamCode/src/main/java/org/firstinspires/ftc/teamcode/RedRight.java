@@ -10,5 +10,48 @@ balancing board from the drive team's perspective.
 RedRight 2018 is developed by Brian Lu
  */
 
-public class RedRight {
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.team11392.lib.AutoLibs;
+import org.team11392.lib.MrOutput;
+import org.team11392.lib.positron.Positron;
+
+@Autonomous (name="RedRight", group="Leaf Guard")
+public class RedRight extends OpMode{
+    boolean redTeam = true;
+    boolean rotateBot = !redTeam;
+    boolean farTurn = true;
+
+    private MrOutput out;
+    private AutoLibs auto;
+    private MecanumHardware robot;
+    private ElapsedTime et;
+    private Positron pos;
+    @Override
+    public void init() {
+        out = new MrOutput(telemetry, 2);
+        robot.init(hardwareMap);
+        et = new ElapsedTime();
+        auto = new AutoLibs(robot, out);
+        pos = new Positron();
+        out.println("Initialized!");
+    }
+
+    @Override
+    public void init_loop() {
+        auto.jewelLoop(redTeam);
+        auto.cryptoPosition(rotateBot, farTurn);
+    }
+
+    @Override
+    public void loop() {
+        if (et.seconds() > 25) {
+            auto.navToCryptobox();
+            stop();
+        }
+        auto.runPile();
+    }
 }

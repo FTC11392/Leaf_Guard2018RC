@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.team11392.lib.Config;
+import org.team11392.lib.positron.doublevision.ClosableVuforiaLocalizer;
 
 import java.util.Locale;
 
@@ -39,6 +40,7 @@ public class MecanumHardware {
     public DcMotor  climbAssist;
     public DcMotor  arm;
 
+    public Servo    phoneServo  = null;
     public Servo    leftHand    = null;
     public Servo    rightHand   = null;
     public Servo    leftHand2    = null;
@@ -61,20 +63,20 @@ public class MecanumHardware {
     public double red = 0, blue = 0, green = 0;
     
     public OpenGLMatrix lastLocation   = null;
-    public VuforiaLocalizer vuforia;
+    public ClosableVuforiaLocalizer vuforia;
     public VuforiaTrackables relicTrackables;
     public VuforiaTrackable relicTemplate;
     public RelicRecoveryVuMark vuMark;
 
     double updownSecs = 0;
     //IMU jazz
-    /*
+
     public BNO055IMU imu;
     Orientation angles;
-    */
+    int imuExpectedHeading = 0;
     /* local OpMode members. */
     ElapsedTime updownTime;
-    HardwareMap hwMap           =  null;
+    public HardwareMap hwMap           =  null;
 
     /* Constructor */
     public MecanumHardware (){
@@ -88,7 +90,7 @@ public class MecanumHardware {
 
         // Define and Initialize Motors
         //imu jazz
-        /*
+
         BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
         imuparams.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         imuparams.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -96,7 +98,7 @@ public class MecanumHardware {
         imuparams.loggingEnabled      = true;
         imuparams.loggingTag          = "IMU";
         imuparams.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        */
+
         leftFront  = hwMap.get(DcMotor.class, "leftFront");
         rightFront = hwMap.get(DcMotor.class, "rightFront");
         leftBack   = hwMap.get(DcMotor.class, "leftBack");
@@ -106,11 +108,11 @@ public class MecanumHardware {
 
         arm = hwMap.get(DcMotor.class, "arm");
         //imu needs hardware port channel to work
-        /*
+
         imu = hwMap.get(BNO055IMU.class, "imu");
         imu.initialize(imuparams);
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
-        */
+
         leftFront.setDirection(DcMotor.Direction.REVERSE); 
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);   //Andy Mark
@@ -131,6 +133,7 @@ public class MecanumHardware {
 
         zeroFloat();
 
+        phoneServo = hwMap.get(Servo.class, "phoneServo");
         // Define and initialize ALL installed servos.
         leftHand  = hwMap.get(Servo.class, "left_hand");
         rightHand = hwMap.get(Servo.class, "right_hand");
@@ -166,7 +169,7 @@ public class MecanumHardware {
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = config.VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        this.vuforia = new ClosableVuforiaLocalizer(parameters);
         relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         relicTemplate = relicTrackables.get(0);
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
@@ -215,7 +218,7 @@ public class MecanumHardware {
         sleep(time);
         move(0,0,0);
     }
-    /*
+
     public void imuTurnRight(int expectedDegrees) {
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
@@ -226,15 +229,13 @@ public class MecanumHardware {
                 notCloseEnough = false;
                 return;
             }
-            if(-expectedDegrees < heading) {
-                move(0 ,0 , -0.25);
-            }
             if(-expectedDegrees > heading) {
                 move(0 ,0 , 0.25);
             }
             angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
         }
+        imuExpectedHeading = expectedDegrees;
     }
     public void imuTurnLeft(int expectedDegrees) {
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -246,6 +247,24 @@ public class MecanumHardware {
                 notCloseEnough = false;
                 return;
             }
+            if(-expectedDegrees < heading) {
+                move(0 ,0 , -0.25);
+            }
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+        }
+        imuExpectedHeading = expectedDegrees;
+    }
+    public void imuSet(int expectedDegrees) {
+        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+        boolean notCloseEnough = true;
+        while (notCloseEnough) {
+            if(Math.abs(-expectedDegrees - heading) < 2) {
+                move(0,0,0);
+                notCloseEnough = false;
+                return;
+            }
             if(-expectedDegrees > heading) {
                 move(0 ,0 , 0.25);
             }
@@ -255,6 +274,11 @@ public class MecanumHardware {
             angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
         }
+        imuExpectedHeading = expectedDegrees;
+    }
+
+    public int getIMUHeading() {
+        return imuExpectedHeading;
     }
     String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
@@ -262,7 +286,7 @@ public class MecanumHardware {
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
-    */
+
 
     public void upDown() {
         if (updownTime.seconds() - updownSecs > 0.3) {
@@ -465,6 +489,7 @@ public class MecanumHardware {
         }
         return "red jewel = " + redJewel + ", blue jewel = " + blueJewel + " at: " + runtime.seconds();
     }
+    */
     public void detectPic( ) {
         // detect picture
         relicTrackables.activate();
@@ -478,6 +503,7 @@ public class MecanumHardware {
         }
         relicTrackables.deactivate();
     }
+    /*
     public void rightHit() {
         move(0., 0., -0.18);
         sleep(900);
