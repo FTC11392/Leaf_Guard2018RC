@@ -328,10 +328,10 @@ public class MecanumHardware {
                 return;
             }
             if(-expectedDegrees > heading) {
-                move(0 ,0 , 0.25);
+                move(0 ,0 , 0.5);
             }
             if(-expectedDegrees < heading) {
-                move(0 ,0 , -0.25);
+                move(0 ,0 , -0.5);
             }
             angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));

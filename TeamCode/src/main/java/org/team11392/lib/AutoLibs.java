@@ -21,6 +21,8 @@ public class AutoLibs {
     int pixelAccuracy = 80;
     double centerPixel = 500;
     double shiftSpeed = 0.2;
+    private boolean farTurn;
+
     public AutoLibs(MecanumHardware robot, MrOutput out) {
         this.robot = robot;
         this.out = out;
@@ -148,7 +150,14 @@ public class AutoLibs {
                 setCryptoPerpendicular(rotateBot, farTurn);
                 robot.moveByTime(-0.2, 0, 0, 1500);
                 setCryptoPerpendicular(rotateBot, farTurn);
-                robot.moveByInches(16,0.8);
+                robot.moveByInches(15,0.8);
+                setCryptoPerpendicular(rotateBot,farTurn);
+                if (robot.vuMark == RelicRecoveryVuMark.LEFT) {
+                    robot.moveByInches(6,0.8);
+                }
+                if (robot.vuMark == RelicRecoveryVuMark.RIGHT) {
+                    robot.moveByInches(-6, 0.8);
+                }
                 robot.imuSet(90);
                 robot.handsOpen(3);
                 robot.handsOpen(1);
@@ -160,9 +169,78 @@ public class AutoLibs {
                 robot.moveByTime(0.2,0,0, 2000);
                 robot.moveByTime(-1,0,0,200);
             } else {
-                robot.moveByTime(-0.5, 0, 0, 2000);
+                robot.moveByTime(-0.5, 0, 0, 1000);
                 setCryptoPerpendicular(rotateBot, farTurn);
-                robot.moveByTime(-0.2, 0, 0, 3000);
+                robot.moveByTime(0.2, 0, 0, 1500);
+                setCryptoPerpendicular(rotateBot, farTurn);
+                robot.moveByInches(-16,0.8);
+                setCryptoPerpendicular(rotateBot, farTurn);
+                if (robot.vuMark == RelicRecoveryVuMark.LEFT) {
+                    robot.moveByInches(6,0.8);
+                }
+                if (robot.vuMark == RelicRecoveryVuMark.RIGHT) {
+                    robot.moveByInches(-6, 0.8);
+                }
+                robot.imuSet(90);
+                robot.handsOpen(3);
+                robot.handsOpen(1);
+                robot.hands.setPosition(0);
+                robot.moveByInches(-5, 0.8);
+                robot.liftDown(0.2);
+                sleep(1500);
+                robot.liftHold();
+                robot.moveByTime(0.2,0,0, 2000);
+                robot.moveByTime(-1,0,0,200);
+            }
+        } else {
+            if (!rotateBot) {
+                robot.moveByTime(0.5, 0, 0, 1000);
+                robot.imuSet(0);
+                robot.moveByTime(-0.2, 0, 0, 1500);
+                robot.imuSet(0);
+                robot.moveByInches(6,0.8);
+                robot.imuSet(-90);
+                robot.moveByInches(15, 0.8);
+                setCryptoPerpendicular(rotateBot, farTurn);
+                if (robot.vuMark == RelicRecoveryVuMark.LEFT) {
+                    robot.moveByInches(6,0.8);
+                }
+                if (robot.vuMark == RelicRecoveryVuMark.RIGHT) {
+                    robot.moveByInches(-6, 0.8);
+                }
+                robot.imuSet(0);
+                robot.handsOpen(3);
+                robot.handsOpen(1);
+                robot.hands.setPosition(0);
+                robot.moveByInches(-5, 0.8);
+                robot.liftDown(0.2);
+                sleep(1500);
+                robot.liftHold();
+                robot.moveByTime(0.2,0,0, 2000);
+                robot.moveByTime(-1,0,0,200);
+            } else {
+                robot.moveByTime(-0.5, 0, 0, 1000);
+                robot.imuSet(0);
+                robot.moveByTime(0.2, 0, 0, 1500);
+                robot.imuSet(0);
+                robot.moveByInches(-6,0.8);
+                setCryptoPerpendicular(rotateBot, farTurn);
+                robot.moveByInches(-15,0.8);
+                if (robot.vuMark == RelicRecoveryVuMark.LEFT) {
+                    robot.moveByInches(6,0.8);
+                }
+                if (robot.vuMark == RelicRecoveryVuMark.RIGHT) {
+                    robot.moveByInches(-6, 0.8);
+                }
+                robot.imuSet(180);
+                robot.handsOpen(3);
+                robot.handsOpen(1);
+                robot.moveByInches(-5, 0.8);
+                robot.liftDown(0.2);
+                sleep(1500);
+                robot.liftHold();
+                robot.moveByTime(0.2,0,0, 2000);
+                robot.moveByTime(-1,0,0,200);
             }
         }
     }
