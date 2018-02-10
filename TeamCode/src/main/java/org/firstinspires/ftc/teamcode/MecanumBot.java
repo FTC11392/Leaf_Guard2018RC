@@ -47,8 +47,11 @@ public class MecanumBot extends LinearOpMode{
         robot.hands.setPosition(0);
         robot.handsOpen(1);
         robot.handsOpen(3);
+        runtime.reset();
 
         while (opModeIsActive()) {
+            if (runtime.seconds() > 120)
+                robot.zeroBrake();
             if (clawTime.milliseconds() == 500)
                 clawTurning = false;
 
