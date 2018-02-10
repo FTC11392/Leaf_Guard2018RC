@@ -26,12 +26,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.team11392.lib.Config;
+import org.team11392.lib.DefMath;
 import org.team11392.lib.positron.doublevision.ClosableVuforiaLocalizer;
 
 import java.util.Locale;
 
 public class MecanumHardware {
+    static final double     COUNTS_PER_MOTOR_REV    = 28.0 ;    // eg: AndyMark NeverRest40 Motor Encoder
+    static final double     DRIVE_GEAR_REDUCTION    = 40.0 ;     // This is < 1.0 if geared UP
+    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * Math.PI);
     public Config config = new Config();
+    DefMath dmath = new DefMath();
     /* Public OpMode members. */
     public DcMotor  leftFront   = null;
     public DcMotor  rightFront  = null;
@@ -134,6 +141,7 @@ public class MecanumHardware {
         zeroFloat();
 
         phoneServo = hwMap.get(Servo.class, "phoneServo");
+        phoneServo.setPosition(1);
         // Define and initialize ALL installed servos.
         leftHand  = hwMap.get(Servo.class, "left_hand");
         rightHand = hwMap.get(Servo.class, "right_hand");
@@ -141,6 +149,7 @@ public class MecanumHardware {
         rightHand2 = hwMap.get(Servo.class, "right_hand2");
 
         lift      = hwMap.get(Servo.class, "lift");   //Vex motor
+        liftHold();
         //lift2      = hwMap.get(Servo.class, "lift2");   //Vex motor
         //lift      = hwMap.get(CRServo.class, "lift");
         //arm       = hwMap.get(Servo.class, "arm");    //Vex motor
@@ -219,6 +228,59 @@ public class MecanumHardware {
         move(0,0,0);
     }
 
+    public void moveByInches(double inches, double power) {
+        encoderDrive(power, inches);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+    public void encoderDrive(double speed, double inches) {
+        int new_tLeftTarget;
+        int new_tRightTarget;
+        int new_bLeftTarget;
+        int new_bRightTarget;
+
+
+            // Determine new target position, and pass to motor controller
+            new_tLeftTarget = leftFront.getCurrentPosition() + (int)((inches/*/Math.sqrt(2)*/) * COUNTS_PER_INCH);
+            new_tRightTarget = rightFront.getCurrentPosition() + (int)((-inches/*/Math.sqrt(2)*/) * COUNTS_PER_INCH);
+            new_bLeftTarget = leftBack.getCurrentPosition( )+ (int)((-inches/*/Math.sqrt(2)*/) * COUNTS_PER_INCH);
+            new_bRightTarget = rightBack.getCurrentPosition() + (int)((inches/*/Math.sqrt(2)*/) * COUNTS_PER_INCH);
+            leftFront.setTargetPosition(new_tLeftTarget);
+            rightFront.setTargetPosition(new_tRightTarget);
+            leftBack.setTargetPosition(new_bLeftTarget);
+            rightBack.setTargetPosition(new_bRightTarget);
+
+            // Turn On RUN_TO_POSITION
+            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            leftFront.setPower(speed);
+            rightFront.setPower(speed);
+            leftBack.setPower(speed);
+            rightBack.setPower(speed);
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            while (( leftFront.isBusy() && rightFront.isBusy()  && leftBack.isBusy() && rightBack.isBusy()))
+                nullFunc();
+
+        // Stop all motion;
+                leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+
+        // Turn off RUN_TO_POSITION
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //  sleep(250);   // optional pause after each move
+    }
     public void imuTurnRight(int expectedDegrees) {
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double heading  = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
@@ -657,6 +719,9 @@ public class MecanumHardware {
         return position;
     }
     */
+    public void nullFunc() {
+
+    }
     public void sleep(int ms) {
         //This is customized sleep as the system sleep function only
         //works in linear opMode 

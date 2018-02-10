@@ -212,7 +212,7 @@ public abstract class LinearOpMode extends OpMode {
      * From the non-linear OpMode; do not override
      */
     @Override
-    final public void init() {
+    public void init() {
         this.executorService = ThreadPool.newSingleThreadExecutor("LinearOpMode");
         this.helper = new LinearOpModeHelper();
         this.isStarted = false;

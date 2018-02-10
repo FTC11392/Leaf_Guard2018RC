@@ -11,6 +11,7 @@ RedLeft 2018 is developed by Brian Lu
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -19,38 +20,29 @@ import org.team11392.lib.MrOutput;
 import org.team11392.lib.positron.Positron;
 
 @Autonomous (name="RedLeft", group="Leaf Guard")
-public class RedLeft extends OpMode{
+public class RedLeft extends LinearOpMode {
     boolean redTeam = true;
     boolean rotateBot = !redTeam;
     boolean farTurn = false;
+
+    boolean startRun = false;
 
     private MrOutput out;
     private AutoLibs auto;
     private MecanumHardware robot;
     private ElapsedTime et;
     private Positron pos;
-    @Override
-    public void init() {
+    public void runOpMode() throws InterruptedException {
         out = new MrOutput(telemetry, 2);
+        robot = new MecanumHardware();
         robot.init(hardwareMap);
         et = new ElapsedTime();
         auto = new AutoLibs(robot, out);
         pos = new Positron();
         out.println("Initialized!");
-    }
-
-    @Override
-    public void init_loop() {
+        waitForStart();
         auto.jewelLoop(redTeam);
-        auto.cryptoPosition(rotateBot, farTurn);
-    }
-
-    @Override
-    public void loop() {
-        if (et.seconds() > 25) {
-            auto.navToCryptobox();
-            stop();
-        }
-        auto.runPile();
+        auto.encodedPark(rotateBot, farTurn);
+        sleep(30000);
     }
 }

@@ -34,15 +34,13 @@ public class CryptoboxOpMode extends OpMode
         cryptoboxDetector = new CryptoboxDetector();
         cryptoboxDetector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
 
-        cryptoboxDetector.rotateMat = true;
+        cryptoboxDetector.rotateMat = false;
 
         //Optional Test Code to load images via Drawables
         //cryptoboxDetector.useImportedImage = true;
         //cryptoboxDetector.SetTestMat(com.qualcomm.ftcrobotcontroller.R.drawable.test_cv4);
 
         cryptoboxDetector.enable();
-        cryptoboxDetector.getFrameSize();
-
     }
 
     @Override

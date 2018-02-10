@@ -33,6 +33,7 @@ public class RedRight extends OpMode{
     @Override
     public void init() {
         out = new MrOutput(telemetry, 2);
+        robot = new MecanumHardware();
         robot.init(hardwareMap);
         et = new ElapsedTime();
         auto = new AutoLibs(robot, out);
@@ -42,7 +43,7 @@ public class RedRight extends OpMode{
 
     @Override
     public void init_loop() {
-        auto.jewelLoop(redTeam);
+        //auto.jewelLoop(redTeam);
         auto.cryptoPosition(rotateBot, farTurn);
     }
 

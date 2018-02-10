@@ -14,6 +14,7 @@ Mr. Output 2018 is developed by Brian Lu
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 
 public class MrOutput {
     /*
@@ -46,7 +47,6 @@ public class MrOutput {
     private Telemetry tele;
     public MrOutput(Telemetry tele, int staticLines) {
         this.tele = tele;
-        addTelemetryLine("Starting Mr. Output...");
         this.staticLines = staticLines;
         // Amount of static lines should not be larger than the amount of total lines
         if (staticLines > totalLines) {
@@ -59,8 +59,12 @@ public class MrOutput {
         outputs = new String[totalLines - staticLines];
         staticCaptions = new String[staticLines];
         outputCaptions = new String[totalLines - staticLines];
-        addTelemetryLine("Mr. Output is online!");
-        pushTelemetry();
+        println("Mr. Output v1.0, Initialised...");
+        println("Built by Brian Lu, 2018, for 11392");
+        println("There are " + totalLines + "total  lines.");
+        println("There are " + staticLines + "static lines.");
+        println("There are " + outputs.length + "output lines");
+        println("Debug = " + debugOn);
     }
     // The public functions used to print "static" lines
     public void setStaticLine(int staticLine, String caption, String output) {
@@ -217,6 +221,21 @@ public class MrOutput {
             return "true";
         }
         return "false";
+    }
+
+    String toString(RelicRecoveryVuMark vuMark) {
+        switch (vuMark) {
+            case LEFT:
+                return "LEFT";
+            case RIGHT:
+                return "RIGHT";
+            case CENTER:
+                return "CENTER";
+            case UNKNOWN:
+                return "UNKNOWN";
+            default:
+                return "NODETECT";
+        }
     }
 
     // Display all added telemetry
